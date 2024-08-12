@@ -2,8 +2,8 @@ package Classes;
 public class Funcionario extends Pessoa {
     private float salario;
     private String cargo;
-
     private int cgHoraria;
+
     Chamado chamado;
     
     //Construtor padrão

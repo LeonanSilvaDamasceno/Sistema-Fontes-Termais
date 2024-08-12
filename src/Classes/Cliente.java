@@ -1,15 +1,15 @@
 package Classes;
 
 public class Cliente extends Pessoa {
-	private int numQuarto;
 	private int tempoReserva;
+	Quarto quarto;
 	Fonte_Termal fonte_termal;
 	Chamado chamado;
 	
 	//Construtor padrão
-	public Cliente(String nome, String CPF, String email, int numQuarto, int tempoReserva) {
+	public Cliente(String nome, String CPF, String email, Quarto quarto, int tempoReserva) {
 		super(nome, CPF, email);
-		this.numQuarto = numQuarto;
+		this.quarto = quarto;
 		this.tempoReserva = tempoReserva;
 	}
 	
@@ -18,9 +18,7 @@ public class Cliente extends Pessoa {
 		this.fonte_termal = fonte_termal;
 	}
 
-	public void setNumQuarto(int numQuarto) {
-		this.numQuarto = numQuarto;
-	}
+	public void setQuarto (Quarto quarto) {this.quarto = quarto;}
 
 	public void setTempoReserva(int tempoReserva) {
 		this.tempoReserva = tempoReserva;
@@ -30,9 +28,6 @@ public class Cliente extends Pessoa {
 		return tempoReserva;
 	}
 
-	public int getNumQuarto() {
-		return numQuarto;
-	}
 	
 	public void usarFonte() {
 		System.out.print("Cliente" + getNome() + "está usando a fonte \"" + fonte_termal.getCodFonte() + "\"!");
