@@ -8,6 +8,14 @@ public class Quarto {
     Cliente cliente;
 
     public Quarto () {}
+    
+
+    public Quarto(int num, int num_cli, String disp) {
+        this.num = num;
+        this.num_cli = num_cli;
+        this.disp = disp;
+    }
+
 
     public Cliente getCliente() {return cliente;}
 

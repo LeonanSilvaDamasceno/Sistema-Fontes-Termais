@@ -2,10 +2,14 @@ package DAO;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.JOptionPane;
 import Classes.Chamado;
 import Conexao.Conexao;
+import java.util.ArrayList;
+
+import java.util.List;
 
 public class ChamadoDAO {
     public void cadastrarChamado(Chamado chamado) {
@@ -14,7 +18,7 @@ public class ChamadoDAO {
         PreparedStatement ps = null;
 
         try {
-            ps = Conexao.getConexao().prepareStatement(sql);    
+            ps = Conexao.getConexao().prepareStatement(sql);
             ps.setString(1, chamado.getDs_chamado());
             ps.setString(2, chamado.getSolicitante());
             ps.setString(3, chamado.getSc_chamado());
@@ -47,41 +51,68 @@ public class ChamadoDAO {
         }
 
     }
-    //Caso seja preciso já vai estar pronto
-    public void procurarChamado(int idChamado){
-        String sql = "SELECT idChamado, funcionarioResponsavel, solicitante, descricaoChamado, situacaoChamado FROM chamado WHERE idChamado = ?";
 
+    // Método para listar todos os chamados do banco de dados
+    public static List<Chamado> listarChamados() {
+        // SQL para selecionar os dados dos chamados
+        String sql = "SELECT idChamado, solicitante, descricaoChamado, situacaoChamado, FuncionarioResponsavel FROM chamado";
+
+        // Criação da lista para armazenar os objetos Chamado
+        List<Chamado> chamados = new ArrayList<>();
+
+        // Declaração das variáveis para PreparedStatement e ResultSet
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
+            // Obtém a conexão do banco de dados
             ps = Conexao.getConexao().prepareStatement(sql);
-            ps.setInt(1, idChamado);
 
+            // Executa a consulta SQL
             rs = ps.executeQuery();
-            if (rs.next()) {
-				int id = rs.getInt("idChamado");
-				String funciResp = rs.getString("funcionarioResponsavel");
-				String solicitante = rs.getString("solicitante");
-				String descricaoChamado  = rs.getString("descricaoChamado");
-				String situacaoChamado = rs.getString("situacaoChamado");
-				
 
-				String mensagem = String.format("id: %d\n\nFuncionario responsavel: %s\n\nSolicitante: %s\n\nDescricao do Chamado: %s\n\nSituacao do chamado: %s",
-    id, funciResp, solicitante, descricaoChamado, situacaoChamado);
-				
-						JOptionPane.showMessageDialog(null, mensagem);
-				}else{
-					JOptionPane.showMessageDialog(null, "Chamado não encontrado");
-				}
-			rs.close();
-			ps.close();
-            
+            // Itera sobre os resultados da consulta
+            while (rs.next()) {
+                // Obtém os dados de cada coluna do ResultSet
+                int id = rs.getInt("idChamado");
+                String solicitante = rs.getString("solicitante");
+                String descricaoChamado = rs.getString("descricaoChamado");
+                String situacaoChamado = rs.getString("situacaoChamado");
+                String funciResponsavel = rs.getString("FuncionarioResponsavel");
+
+                // Cria um novo objeto Chamado com os dados obtidos
+                Chamado chamado = new Chamado(id, solicitante, descricaoChamado, situacaoChamado, funciResponsavel);
+
+                // Adiciona o objeto Chamado à lista
+                chamados.add(chamado);
+            }
+
+            // Verifica se a lista está vazia e imprime uma mensagem se nenhum chamado for
+            // encontrado
+            if (chamados.isEmpty()) {
+                System.out.println("Nenhum chamado encontrado.");
+            }
+
         } catch (Exception e) {
+            // Captura e imprime qualquer exceção que ocorra durante a execução
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Erro ao procurar o chamado");
+            System.out.println("Erro ao procurar os chamados.");
+        } finally {
+            // Fecha o ResultSet e o PreparedStatement para liberar os recursos
+            try {
+                if (rs != null)
+                    rs.close();
+                if (ps != null)
+                    ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+
+        // Retorna a lista de chamados
+        return chamados;
     }
+
     // Método para atualizar um chamado no banco de dados
     public void atualizarChamado(Chamado chamado) {
         // Comando SQL básico para atualização

@@ -5,14 +5,21 @@ public class Cliente extends Pessoa {
 	Quarto quarto;
 	Fonte_Termal fonte_termal;
 	Chamado chamado;
-	
-	//Construtor padrão
-	public Cliente(String nome, String CPF, String email, Quarto quarto, int tempoReserva) {
-		super(nome, CPF, email);
-		this.quarto = quarto;
-		this.tempoReserva = tempoReserva;
+	private String checkIn;
+
+
+	public Cliente(){
+
 	}
 	
+	//Construtor padrão
+	public Cliente(String nome, String cpf, String email, int tempoReserva, Quarto quarto, String checkIn) {
+		super(nome, cpf, email);
+		this.tempoReserva = tempoReserva;
+		this.quarto = quarto;
+		this.checkIn = checkIn;
+	}
+
 	//Apartir daqui são os metodos getters e setters
 	public void setFonte_termal(Fonte_Termal fonte_termal) {
 		this.fonte_termal = fonte_termal;
@@ -36,6 +43,15 @@ public class Cliente extends Pessoa {
 		System.out.print("Cliente" + getNome() + "está usando a fonte \"" + fonte_termal.getCodFonte() + "\"!");
 	}
 	
+	
+	public String getCheckIn() {
+		return checkIn;
+	}
+
+	public void setCheckIn(String checkIn) {
+		this.checkIn = checkIn;
+	}
+
 	//Metodo para renovar a reserva do cliente
 	public void renovarReserva(int tempoReserva) {}
 	public void abrirChamado () {

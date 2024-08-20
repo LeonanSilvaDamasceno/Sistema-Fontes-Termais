@@ -1,23 +1,21 @@
 
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 import Classes.Chamado;
+import Classes.Cliente;
 import Classes.Funcionario;
+import Classes.Quarto;
 import DAO.ChamadoDAO;
+import DAO.ClienteDAO;
 import DAO.FuncionarioDAO;
 
-import javax.swing.JPasswordField;
-import javax.swing.JButton;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JRadioButton;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.List;
 
 public class Frame extends JFrame {
 	public static void initializer() {
@@ -79,7 +77,7 @@ public class Frame extends JFrame {
 		frameStartup(resp_Chamado);
 		frameStartup(func_Chamado);
 		frameStartup(add_Chamado);
-		acionarChamado(add_Chamado);
+		acionarChamado(add_Chamado, Cliente);
 		verChamado(func_Chamado, Funcionario, resp_Chamado);
 		respChamado(resp_Chamado, func_Chamado);
 
@@ -92,9 +90,18 @@ public class Frame extends JFrame {
 	}
 
 	public static void frameStartup(JFrame frame) {
+		// Define o tamanho da janela para 810 pixels de largura e 600 pixels de altura
 		frame.setSize(810, 600);
+
+		// Define o layout da janela como nulo, permitindo posicionamento absoluto dos
+		// componentes
 		frame.setLayout(null);
+
+		// Define a operação padrão ao fechar a janela como EXIT_ON_CLOSE
+		// Isso garante que o programa seja encerrado quando a janela for fechada
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		// Centraliza a janela na tela
 		frame.setLocationRelativeTo(null);
 	}
 
@@ -113,87 +120,129 @@ public class Frame extends JFrame {
 	}
 
 	public static void loginComponents(JFrame Login, JFrame Cliente, JFrame Funcionario, JFrame Signup) {
-		JTextField email = new JTextField(50);
-		JPasswordField senha = new JPasswordField(50);
+		// Campos de texto para o email e senha do usuário
+		JTextField emailField = new JTextField(50);
+		JPasswordField senhaField = new JPasswordField(50);
 
+		// Botão de login e label para redirecionar para o cadastro (sign up)
 		JButton login = new JButton("Entrar");
-		JLabel sign_up = new JLabel("Clique aqui!"); // Funciona como um botão
-		sign_up.setForeground(new Color(77, 117, 154));
+		JLabel sign_up = new JLabel("Clique aqui!"); // Funciona como um botão para cadastro
+		sign_up.setForeground(new Color(77, 117, 154)); // Define a cor do texto
 
+		// Listener para o botão de login
 		login.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (email.getText().equalsIgnoreCase("C"))
-					mudarTelas(Login, Cliente);
-				if (email.getText().equalsIgnoreCase("F"))
-					mudarTelas(Login, Funcionario);
+				// Passo 1: Obtenha os dados do JTextField (email) e JPasswordField (senha)
+				String email = emailField.getText();
+				char[] senhaCharArray = senhaField.getPassword();
+				String senha = new String(senhaCharArray);
+
+				// Passo 2: Verifique as credenciais no banco de dados
+				ClienteDAO clienteDAO = new ClienteDAO(); // Instancia o DAO para cliente
+				FuncionarioDAO funcionarioDAO = new FuncionarioDAO(); // Instancia o DAO para funcionário
+
+				// Verifica se as credenciais pertencem a um cliente
+				if (clienteDAO.loginClienteSistema(email, senha)) {
+					mudarTelas(Login, Cliente); // Se for cliente, muda para a tela do cliente
+				}
+
+				// Verifica se as credenciais pertencem a um funcionário
+				if (funcionarioDAO.loginFuncionarioSistema(email, senha)) {
+					mudarTelas(Login, Funcionario); // Se for funcionário, muda para a tela do funcionário
+				}
 			}
 		});
 
+		// Listener para o label de cadastro (sign up)
 		sign_up.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				mudarTelas(Login, Signup);
+				mudarTelas(Login, Signup); // Muda para a tela de cadastro quando clicado
 			}
 		});
 
-		email.setBounds(130, 230, 150, 30);
-		senha.setBounds(130, 310, 150, 30);
+		// Define as posições e tamanhos dos componentes no JFrame Login
+		emailField.setBounds(130, 230, 150, 30); // Define a posição e tamanho do campo de email
+		senhaField.setBounds(130, 310, 150, 30); // Define a posição e tamanho do campo de senha
 
-		login.setBounds(130, 365, 150, 25);
-		sign_up.setBounds(210, 395, 75, 30);
+		login.setBounds(130, 365, 150, 25); // Define a posição e tamanho do botão de login
+		sign_up.setBounds(210, 395, 75, 30); // Define a posição do label de cadastro
 
+		// Adiciona os componentes ao JFrame Login
 		Login.add(login);
 		Login.add(sign_up);
-		Login.add(email);
-		Login.add(senha);
+		Login.add(emailField);
+		Login.add(senhaField);
 	}
 
-	public static void funcComponents(JFrame Funcionario, JFrame Login, JFrame CheckIn,
-			JFrame CheckOut, JFrame Chamado, JFrame Quarto, JFrame addFunc) {
+	public static void funcComponents(JFrame Funcionario, JFrame Login, JFrame CheckIn, JFrame CheckOut, JFrame Chamado,
+			JFrame Quarto, JFrame addFunc) {
+		// Labels que funcionam como botões para navegar entre diferentes
+		// telas/funcionalidades
 		JLabel verQuartos = new JLabel("Verificar quartos");
 		JLabel verChamado = new JLabel("Verificar chamados");
 		JLabel Func = new JLabel("Adicionar funcionário");
 		JLabel checkIn = new JLabel("Realizar Check-in");
 		JLabel checkOut = new JLabel("Realizar Check-out");
 
+		// Botão de logout
 		JButton logout = new JButton("Logout");
 
+		// Chama o método funcDetails para configurar detalhes de layout e adicionar os
+		// componentes à janela Funcionario
 		funcDetails(Funcionario, verChamado, verQuartos, Func, checkIn, checkOut, logout);
 
+		// Adiciona um MouseListener ao label "Verificar chamados"
 		verChamado.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Muda para a tela de chamados ao clicar
 				mudarTelas(Funcionario, Chamado);
 			}
 		});
+
+		// Adiciona um MouseListener ao label "Verificar quartos"
 		verQuartos.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Muda para a tela de verificação de quartos ao clicar
 				mudarTelas(Funcionario, Quarto);
 			}
 		});
+
+		// Adiciona um MouseListener ao label "Adicionar funcionário"
 		Func.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Muda para a tela de adicionar funcionário ao clicar
 				mudarTelas(Funcionario, addFunc);
 			}
 		});
+
+		// Adiciona um MouseListener ao label "Realizar Check-in"
 		checkIn.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Muda para a tela de check-in ao clicar
 				mudarTelas(Funcionario, CheckIn);
 			}
 		});
+
+		// Adiciona um MouseListener ao label "Realizar Check-out"
 		checkOut.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Muda para a tela de check-out ao clicar
 				mudarTelas(Funcionario, CheckOut);
 			}
 		});
+
+		// Adiciona um MouseListener ao botão de logout
 		logout.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Muda para a tela de login ao clicar no logout
 				mudarTelas(Funcionario, Login);
 			}
 		});
@@ -292,10 +341,10 @@ public class Frame extends JFrame {
 	public static void signupComponents(JFrame Signup, JFrame Login) {
 		Signup.setSize(500, 500);
 
-		JTextField nome = new JTextField();
-		JTextField email = new JTextField();
-		JTextField cpf = new JTextField();
-		JPasswordField senha = new JPasswordField();
+		JTextField nomeField = new JTextField();
+		JTextField emailField = new JTextField();
+		JTextField cpfField = new JTextField();
+		JPasswordField senhaField = new JPasswordField();
 
 		JButton confirmar = new JButton("Confirmar");
 		JButton cancelar = new JButton("Cancelar");
@@ -309,22 +358,31 @@ public class Frame extends JFrame {
 		confirmar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				criarConta(nome.getText(), Integer.parseInt(cpf.getText()), email.getText(), senha.getPassword());
+				criarConta(nomeField.getText(), cpfField.getText(), emailField.getText(), senhaField.getPassword());
 				mudarTelas(Signup, Login);
+
+				String nome = nomeField.getText();
+				String email = emailField.getText();
+				String cpf = cpfField.getText();
+				char[] x = senhaField.getPassword();
+				String senha = new String(x);
+
+				ClienteDAO dao = new ClienteDAO();
+				dao.cadastrarLoginCliente(nome, email, cpf, senha);
 			}
 		});
 
-		nome.setBounds(120, 130, 230, 30);
-		email.setBounds(120, 200, 230, 30);
-		cpf.setBounds(120, 280, 230, 30);
-		senha.setBounds(120, 360, 230, 30);
+		nomeField.setBounds(120, 130, 230, 30);
+		emailField.setBounds(120, 200, 230, 30);
+		cpfField.setBounds(120, 280, 230, 30);
+		senhaField.setBounds(120, 360, 230, 30);
 		confirmar.setBounds(120, 405, 95, 25);
 		cancelar.setBounds(255, 405, 95, 25);
 
-		Signup.add(nome);
-		Signup.add(email);
-		Signup.add(cpf);
-		Signup.add(senha);
+		Signup.add(nomeField);
+		Signup.add(emailField);
+		Signup.add(cpfField);
+		Signup.add(senhaField);
 		Signup.add(confirmar);
 		Signup.add(cancelar);
 	}
@@ -360,7 +418,7 @@ public class Frame extends JFrame {
 		Signup.add(senha);
 	}
 
-	public static void criarConta(String nome, int cpf, String email, char[] senha) {
+	public static void criarConta(String nome, String cpf, String email, char[] senha) {
 		JOptionPane.showMessageDialog(null, "Conta criada com êxito!",
 				"Cadastro efetuado", JOptionPane.INFORMATION_MESSAGE);
 	}
@@ -368,20 +426,20 @@ public class Frame extends JFrame {
 	public static void addFuncComponents(JFrame addFunc, JFrame Funcionario) {
 		// Define o tamanho da janela para adicionar um funcionário
 		addFunc.setSize(500, 800);
-
+	
 		// Criação dos campos de entrada para os dados do funcionário
-		JTextField nome = new JTextField(); // Campo para o nome do funcionário
-		JTextField email = new JTextField(); // Campo para o e-mail do funcionário
-		JTextField cpf = new JTextField(); // Campo para o CPF do funcionário
-		JTextField cargo = new JTextField(); // Campo para o cargo do funcionário
-		JTextField cgHoraria = new JTextField(); // Campo para a carga horária semanal
-		JTextField salario = new JTextField(); // Campo para o salário mensal
-		JPasswordField senha = new JPasswordField(); // Campo para a senha do funcionário
-
+		JTextField nomeField = new JTextField(); // Campo para o nome do funcionário
+		JTextField emailField = new JTextField(); // Campo para o e-mail do funcionário
+		JTextField cpfField = new JTextField(); // Campo para o CPF do funcionário
+		JTextField cargoField = new JTextField(); // Campo para o cargo do funcionário
+		JTextField cgHorariaField = new JTextField(); // Campo para a carga horária semanal
+		JTextField salarioField = new JTextField(); // Campo para o salário mensal
+		JPasswordField senhaField = new JPasswordField(); // Campo para a senha do funcionário
+	
 		// Criação dos botões para confirmar e cancelar a operação
 		JButton confirmar = new JButton("Confirmar"); // Botão para confirmar o cadastro
 		JButton cancelar = new JButton("Cancelar"); // Botão para cancelar a operação
-
+	
 		// Adiciona um MouseListener ao botão "Cancelar"
 		cancelar.addMouseListener(new MouseAdapter() {
 			@Override
@@ -390,30 +448,51 @@ public class Frame extends JFrame {
 				mudarTelas(addFunc, Funcionario);
 			}
 		});
-
+	
 		// Adiciona um MouseListener ao botão "Confirmar"
 		confirmar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				try {
-					// Cria um novo objeto Funcionario e define seus atributos com os valores dos
-					// campos
+					// Verifica se todos os campos foram preenchidos
+					if (nomeField.getText().isEmpty() || emailField.getText().isEmpty() || cpfField.getText().isEmpty() ||
+						cargoField.getText().isEmpty() || cgHorariaField.getText().isEmpty() || salarioField.getText().isEmpty() ||
+						senhaField.getPassword().length == 0) {
+						JOptionPane.showMessageDialog(addFunc, "Todos os campos devem ser preenchidos.");
+						return;
+					}
+	
+					// Cria um novo objeto Funcionario e define seus atributos com os valores dos campos
 					Funcionario funcionario = new Funcionario();
-					funcionario.setNome(nome.getText()); // Define o nome do funcionário
-					funcionario.setCPF(cpf.getText()); // Define o CPF do funcionário
-					funcionario.setEmail(email.getText()); // Define o e-mail do funcionário
-					funcionario.setCargo(cargo.getText()); // Define o cargo do funcionário
-					int cargaHoraria = Integer.parseInt(cgHoraria.getText()); //Define  a carga horaria semanal do funcionario
-					funcionario.setSalario(Float.parseFloat(salario.getText())); // Define o salário do funcionário
-					funcionario.setCgHoraria(cargaHoraria);
+					funcionario.setNome(nomeField.getText()); // Define o nome do funcionário
+					funcionario.setCPF(cpfField.getText()); // Define o CPF do funcionário
+					funcionario.setEmail(emailField.getText()); // Define o e-mail do funcionário
+					funcionario.setCargo(cargoField.getText()); // Define o cargo do funcionário
+					
+					// Valida e define a carga horária semanal do funcionário
+					try {
+						int cargaHoraria = Integer.parseInt(cgHorariaField.getText());
+						funcionario.setCgHoraria(cargaHoraria);
+					} catch (NumberFormatException ex) {
+						JOptionPane.showMessageDialog(addFunc, "Carga horária deve ser um número válido.");
+						return;
+					}
+	
+					// Valida e define o salário do funcionário
+					try {
+						funcionario.setSalario(salarioField.getText());
+					} catch (NumberFormatException ex) {
+						JOptionPane.showMessageDialog(addFunc, "Salário deve ser um número válido.");
+						return;
+					}
+	
 					// Converte a senha de char[] para String
-					funcionario.setSenha(new String(senha.getPassword())); // Define a senha do funcionário
-
-					// Cria uma instância de FuncionarioDAO e chama o método para cadastrar o
-					// funcionário
+					funcionario.setSenha(new String(senhaField.getPassword())); // Define a senha do funcionário
+	
+					// Cria uma instância de FuncionarioDAO e chama o método para cadastrar o funcionário
 					FuncionarioDAO funcionarioDAO = new FuncionarioDAO();
 					funcionarioDAO.cadastrarFuncionario(funcionario);
-
+	
 					// Exibe uma mensagem de sucesso
 					JOptionPane.showMessageDialog(addFunc, "Funcionário cadastrado com sucesso!");
 					// Troca para a tela anterior após o cadastro bem-sucedido
@@ -425,34 +504,35 @@ public class Frame extends JFrame {
 				}
 			}
 		});
-
+	
 		// Define as posições e tamanhos dos componentes na janela
-		nome.setBounds(120, 130, 230, 30);
-		email.setBounds(120, 200, 230, 30);
-		cpf.setBounds(120, 280, 230, 30);
-		cgHoraria.setBounds(120, 360, 230, 30);
-		salario.setBounds(120, 440, 230, 30);
-		cargo.setBounds(120, 520, 230, 30);
-		senha.setBounds(120, 600, 230, 30);
+		nomeField.setBounds(120, 130, 230, 30);
+		emailField.setBounds(120, 200, 230, 30);
+		cpfField.setBounds(120, 280, 230, 30);
+		cgHorariaField.setBounds(120, 360, 230, 30);
+		salarioField.setBounds(120, 440, 230, 30);
+		cargoField.setBounds(120, 520, 230, 30);
+		senhaField.setBounds(120, 600, 230, 30);
 		confirmar.setBounds(120, 645, 95, 25);
 		cancelar.setBounds(255, 645, 95, 25);
-
+	
 		// Adiciona todos os componentes à janela
-		addFunc.add(nome);
-		addFunc.add(email);
-		addFunc.add(cpf);
-		addFunc.add(cargo);
-		addFunc.add(cgHoraria);
-		addFunc.add(salario);
-		addFunc.add(senha);
+		addFunc.add(nomeField);
+		addFunc.add(emailField);
+		addFunc.add(cpfField);
+		addFunc.add(cargoField);
+		addFunc.add(cgHorariaField);
+		addFunc.add(salarioField);
+		addFunc.add(senhaField);
 		addFunc.add(confirmar);
 		addFunc.add(cancelar);
 	}
+	
 
 	public static void addFuncLabels(JFrame addFunc) {
 		JLabel flavour1 = new JLabel("Cadastrar conta");
 		JLabel flavour2 = new JLabel("Crie sua conta preenchendo os campos abaixo!");
-
+	
 		JLabel nome = new JLabel("Nome:");
 		JLabel email = new JLabel("Email:");
 		JLabel cpf = new JLabel("CPF:");
@@ -460,7 +540,7 @@ public class Frame extends JFrame {
 		JLabel cgHoraria = new JLabel("Carga horária semanal:");
 		JLabel salario = new JLabel("Salário mensal:");
 		JLabel senha = new JLabel("Senha:");
-
+	
 		flavour1.setFont(new Font("Times new Roman", Font.PLAIN, 15));
 		flavour2.setFont(new Font("Times new Roman", Font.PLAIN, 13));
 		nome.setFont(new Font("Times new Roman", Font.PLAIN, 13));
@@ -470,7 +550,7 @@ public class Frame extends JFrame {
 		cgHoraria.setFont(new Font("Times new Roman", Font.PLAIN, 13));
 		salario.setFont(new Font("Times new Roman", Font.PLAIN, 13));
 		senha.setFont(new Font("Times new Roman", Font.PLAIN, 13));
-
+	
 		flavour1.setBounds(100, 42, 200, 30);
 		flavour2.setBounds(100, 72, 300, 30);
 		nome.setBounds(120, 105, 150, 30);
@@ -480,7 +560,7 @@ public class Frame extends JFrame {
 		cgHoraria.setBounds(120, 415, 150, 30);
 		salario.setBounds(120, 495, 150, 30);
 		senha.setBounds(120, 575, 150, 30);
-
+	
 		addFunc.add(flavour1);
 		addFunc.add(flavour2);
 		addFunc.add(nome);
@@ -491,6 +571,7 @@ public class Frame extends JFrame {
 		addFunc.add(salario);
 		addFunc.add(senha);
 	}
+	
 
 	public static void adicionarFunc(String nome, int cpf, String email, String cargo,
 			int cgHoraria, float salario, char[] senha) {
@@ -499,8 +580,11 @@ public class Frame extends JFrame {
 	}
 
 	public static void checkinCliente(JFrame checkIn, JFrame Func) {
+		// Define o layout da tela de check-in com um GridLayout (linhas variáveis, 2
+		// colunas, 65px de espaço horizontal e 10px de espaço vertical)
 		checkIn.setLayout(new GridLayout(0, 2, 65, 10));
 
+		// Labels e campos de texto para coletar informações do cliente
 		JLabel nome = new JLabel("Nome:");
 		JTextField nomeField = new JTextField();
 
@@ -519,9 +603,11 @@ public class Frame extends JFrame {
 		JLabel tempEstadia = new JLabel("Tempo de estadia:");
 		JTextField tempEstadiaField = new JTextField();
 
+		// Botões para confirmar ou cancelar o check-in
 		JButton confirmar = new JButton("Confirmar");
 		JButton cancelar = new JButton("Cancelar");
 
+		// Adiciona os componentes (labels e campos de texto) ao JFrame
 		checkIn.add(nome);
 		checkIn.add(nomeField);
 		checkIn.add(cpf);
@@ -535,62 +621,108 @@ public class Frame extends JFrame {
 		checkIn.add(dt_checkIn);
 		checkIn.add(checkInField);
 
+		// Adiciona um MouseListener ao botão "Confirmar"
 		confirmar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Passo 1: Muda para a tela de funcionalidades (Func) após confirmar o check-in
 				mudarTelas(checkIn, Func);
-				JOptionPane.showMessageDialog(null, "Check-In efetuado com êxito!",
-						"Check-In registrado", JOptionPane.INFORMATION_MESSAGE);
+
+				// Passo 2: Mostra uma mensagem de sucesso ao usuário
+				JOptionPane.showMessageDialog(null, "Check-In efetuado com êxito!", "Check-In registrado",
+						JOptionPane.INFORMATION_MESSAGE);
+
+				// Passo 3: Coleta os dados inseridos pelo usuário nos campos de texto
+				String nome = nomeField.getText();
+				String cpf = cpfField.getText();
+				String email = emailField.getText();
+				String numQuartoTxt = numQuartoField.getText();
+				int numQuarto = Integer.parseInt(numQuartoTxt); // Converte o número do quarto para inteiro
+				String checkin = checkInField.getText();
+				String tempReservaTxt = tempEstadiaField.getText();
+				int tempEstadia = Integer.parseInt(tempReservaTxt); // Converte o tempo de estadia para inteiro
+
+				// Passo 4: Cria um objeto Quarto com o número do quarto
+				Quarto quarto = new Quarto(numQuarto, 0, ""); // O segundo e terceiro parâmetros são placeholders
+
+				// Passo 5: Cria um objeto Cliente com os dados coletados
+				Cliente cliente = new Cliente(nome, cpf, email, tempEstadia, quarto, checkin);
+
+				// Passo 6: Cadastra o cliente no banco de dados usando ClienteDAO
+				ClienteDAO dao = new ClienteDAO();
+				dao.cadastrarCliente(cliente);
 			}
 		});
+
+		// Adiciona um MouseListener ao botão "Cancelar"
 		cancelar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Muda para a tela de funcionalidades (Func) ao cancelar
 				mudarTelas(checkIn, Func);
 			}
 		});
 
+		// Adiciona os botões de confirmar e cancelar ao JFrame
 		checkIn.add(confirmar);
 		checkIn.add(cancelar);
 
+		// Ajusta o tamanho da janela para acomodar todos os componentes
 		checkIn.pack();
 	}
 
 	public static void checkoutCliente(JFrame checkOut, JFrame Func) {
+		// Define o layout da janela checkOut como GridLayout, com 2 colunas e
+		// espaçamento de 65x10
 		checkOut.setLayout(new GridLayout(0, 2, 65, 10));
 
-		JLabel cpf = new JLabel("CPF:");
-		JTextField cpfField = new JTextField();
+		// Criação de componentes da interface
+		JLabel cpf = new JLabel("CPF:"); // Label para o CPF
+		JTextField cpfField = new JTextField(); // Campo de texto para entrada do CPF
 
-		JLabel numQuarto = new JLabel("Número do quarto:");
-		JTextField numQuartoField = new JTextField();
+		JLabel numQuarto = new JLabel("Número do quarto:"); // Label para o número do quarto
+		JTextField numQuartoField = new JTextField(); // Campo de texto para entrada do número do quarto
 
+		// Criação dos botões Confirmar e Cancelar
 		JButton confirmar = new JButton("Confirmar");
 		JButton cancelar = new JButton("Cancelar");
 
+		// Adiciona um MouseListener ao botão Confirmar
 		confirmar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Muda a tela para a janela Func após o clique
 				mudarTelas(checkOut, Func);
-				JOptionPane.showMessageDialog(null, "Check-Out efetuado com êxito!",
-						"Solicitação de Check-out homologada", JOptionPane.INFORMATION_MESSAGE);
+
+				// Obtém o CPF do campo de texto
+				String cpf = cpfField.getText();
+
+				// Cria uma instância do ClienteDAO para interagir com o banco de dados
+				ClienteDAO dao = new ClienteDAO();
+
+				// Remove o cliente com o CPF especificado do banco de dados
+				dao.removerCliente(cpf);
 			}
 		});
+
+		// Adiciona um MouseListener ao botão Cancelar
 		cancelar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				// Muda a tela para a janela Func ao clicar em Cancelar
 				mudarTelas(checkOut, Func);
 			}
 		});
 
+		// Adiciona os componentes à janela checkOut
 		checkOut.add(cpf);
 		checkOut.add(cpfField);
 		checkOut.add(numQuarto);
 		checkOut.add(numQuartoField);
-
 		checkOut.add(confirmar);
 		checkOut.add(cancelar);
 
+		// Ajusta o tamanho da janela para se adequar aos componentes
 		checkOut.pack();
 	}
 
@@ -729,7 +861,7 @@ public class Frame extends JFrame {
 		Termas.pack();
 	}
 
-	public static void acionarChamado(JFrame chamadoCliente) {
+	public static void acionarChamado(JFrame chamadoCliente, JFrame Cliente) {
 		// Define o layout da janela como um grid com uma única coluna
 		chamadoCliente.setLayout(new GridLayout(0, 1, 65, 10));
 
@@ -775,7 +907,9 @@ public class Frame extends JFrame {
 		});
 
 		// Adicionando funcionalidade ao botão Cancelar
-		cancelar.addActionListener(e -> chamadoCliente.dispose());
+		cancelar.addActionListener(e -> {
+			mudarTelas(chamadoCliente, Cliente);
+		});
 	}
 
 	public static void respChamado(JFrame respChamado, JFrame Funcionario) {

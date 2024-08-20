@@ -28,9 +28,9 @@ public class FuncionarioDAO {
 			ps.setString(1, funcionario.getNome());
 			ps.setString(2, funcionario.getCPF());
 			ps.setString(3, funcionario.getEmail());
-			ps.setFloat(4, funcionario.getSalario());
+			ps.setString(4, funcionario.getSalario());
 			ps.setString(5, funcionario.getCargo());
-			ps.setString(6,funcionario.getSenha());
+			ps.setString(6, funcionario.getSenha());
 			ps.setInt(7, funcionario.getcgHoraria());
 
 			// Comando para executar a ação acima
@@ -38,6 +38,8 @@ public class FuncionarioDAO {
 
 			// Depois de executado vai encerrar a conexão com o banco de dados
 			ps.close();
+
+			JOptionPane.showMessageDialog(null, "Funcionario cadastrado com secesso no Banco de Dados");
 
 			// Se houver algum problema na hora da conexão com o BD vai disparar uma exeção
 		} catch (Exception e) {
@@ -64,7 +66,7 @@ public class FuncionarioDAO {
 			// Depois de executado vai encerrar a conexão com o banco de dados
 			ps.close();
 
-			JOptionPane.showMessageDialog(null,"Funcionario removido com sucesso");
+			JOptionPane.showMessageDialog(null, "Funcionario removido com sucesso");
 		} catch (Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Erro ao remover o funcionário");
@@ -95,11 +97,11 @@ public class FuncionarioDAO {
 
 				String mensagem = String.format("Nome: %s\nCPF: %s\nEmail: %s\nSalário: %.2f\nCargo: %s\nCódigo: %d",
 						nomeResult, cpf, email, salario, cargo, codigo);
-				
-						JOptionPane.showMessageDialog(null, mensagem);
-				}else{
-					JOptionPane.showMessageDialog(null, "Funcionario não encontrado");
-				}
+
+				JOptionPane.showMessageDialog(null, mensagem);
+			} else {
+				JOptionPane.showMessageDialog(null, "Funcionario não encontrado");
+			}
 			rs.close();
 			ps.close();
 		} catch (Exception e) {
@@ -107,35 +109,57 @@ public class FuncionarioDAO {
 			JOptionPane.showMessageDialog(null, "Erro ao procurar funcionário.");
 		}
 
-		
 	}
 
 	public void atualizarFunci(String cpf, String novoNome, String novoEmail, float novoSalario, String novoCargo) {
 		String sql = "UPDATE funcionario SET nome=?, email=?, salario=?, cargo=? WHERE cpf=?";
-	
+
 		PreparedStatement ps = null;
-	
+
 		try {
 			ps = Conexao.getConexao().prepareStatement(sql);
-			
+
 			ps.setString(1, novoNome);
 			ps.setString(2, novoEmail);
 			ps.setFloat(3, novoSalario);
 			ps.setString(4, novoCargo);
 			ps.setString(5, cpf);
-			
-			//Aqui verifica se a atualização dos dados afetou alguma linha no BD. Se o numero de linhas for maior que "0", então o UPDATE deu certo
+
+			// Aqui verifica se a atualização dos dados afetou alguma linha no BD. Se o
+			// numero de linhas for maior que "0", então o UPDATE deu certo
 			int linhasAfetadas = ps.executeUpdate();
 			if (linhasAfetadas > 0) {
 				JOptionPane.showMessageDialog(null, "Funcionário atualizado com sucesso!");
 			} else {
 				JOptionPane.showMessageDialog(null, "Funcionário não encontrado.");
 			}
-	
+
 			ps.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Erro ao atualizar funcionário.");
 		}
+	}
+
+	public boolean loginFuncionarioSistema(String email, String senha) {
+		String sql = "SELECT email, senha FROM funcionario WHERE email = ? AND senha = ?";
+
+		PreparedStatement ps = null;
+
+		try {
+			ps = Conexao.getConexao().prepareStatement(sql);
+			ps.setString(1, email);
+			ps.setString(2, senha);
+
+			// Execute a consulta
+			ResultSet rs = ps.executeQuery();
+
+			// Verifica se há resultados (se o usuário existe no banco de dados)
+			return rs.next(); // Retorna true se encontrar um registro
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Erro ao fazzer login no sistema");
+		}
+		return false;
 	}
 }

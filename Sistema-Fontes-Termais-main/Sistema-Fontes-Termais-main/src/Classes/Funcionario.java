@@ -1,14 +1,14 @@
 package Classes;
 
 public class Funcionario extends Pessoa {
-    private float salario;
+    private String salario;
     private String cargo;
     private int cgHoraria;
     Chamado chamado;
     private String senha;
 
     // Construtor padrão
-    public Funcionario(String nome, String cpf, String email, float salario, String cargo, int cgHoraria,
+    public Funcionario(String nome, String cpf, String email, String salario, String cargo, int cgHoraria,
             String senha) {
         super(nome, cpf, email);
         this.salario = salario;
@@ -34,7 +34,7 @@ public class Funcionario extends Pessoa {
         this.cargo = cargo;
     }
 
-    public void setSalario(float salario) {
+    public void setSalario(String salario) {
         this.salario = salario;
     }
 
@@ -46,7 +46,7 @@ public class Funcionario extends Pessoa {
         return cargo;
     }
 
-    public float getSalario() {
+    public String getSalario() {
         return salario;
     }
 

@@ -9,6 +9,16 @@ public class Chamado {
 
     public Chamado (){}
 
+    
+    public Chamado(int id_chamado, String solicitante, String ds_chamado,String sc_chamado, String func_resp ) {
+        this.id_chamado = id_chamado;
+        this.solicitante = solicitante;
+        this.ds_chamado = ds_chamado;
+        this.func_resp = func_resp;
+        this.sc_chamado = sc_chamado;
+    }
+
+
     public void setId_chamado(int id_chamado) {this.id_chamado = id_chamado;}
     public void setSolicitante(String solicitante) {this.solicitante = solicitante;}
     public void setDs_chamado(String ds_chamado) {this.ds_chamado = ds_chamado;}
